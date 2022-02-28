@@ -37,9 +37,9 @@ def get_management_result(user_skill_string):
 
 
 def get_softskill_result(user_skill_string):
-    management_keyword = firestore.client().collection('keyword').document('softskill').get().to_dict()['key']
-    management_keyword_string = ' '.join(str(e) for e in management_keyword)
-    result = get_result(user_skill_string, management_keyword_string)
+    softskill_keyword = firestore.client().collection('keyword').document('softskill').get().to_dict()['key']
+    softskill_keyword_string = ' '.join(str(e) for e in softskill_keyword)
+    result = get_result(user_skill_string, softskill_keyword_string)
     print('You score ' + result + '% in softskills.')
     return result
 
