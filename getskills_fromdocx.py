@@ -1,7 +1,8 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-import docx2txt
 import nltk
+import docx2txt
+from pdfminer.high_level import extract_text
 from analysis import get_tech_result, get_management_result, get_softskill_result, feedback
 
 nltk.download('stopwords')
@@ -14,9 +15,14 @@ tech_keyword = firestore.client().collection('keyword').document('technology').g
 management_keyword = firestore.client().collection('keyword').document('management').get().to_dict()['key']
 softskill_keyword = firestore.client().collection('keyword').document('softskill').get().to_dict()['key']
 
-
 def extract_text_from_docx(docx_path):
     txt = docx2txt.process(docx_path)
+    if txt:
+        return txt.replace('\t', ' ')
+    return None
+
+def extract_text_from_pdf(pdf_path):
+    txt = extract_text(pdf_path)
     if txt:
         return txt.replace('\t', ' ')
     return None
@@ -51,11 +57,19 @@ def extract_skills(input_text):
     print('Tech Keywords: ', tech_keyword)
     return found_skills
 
-
 if __name__ == '__main__':
-    text = extract_text_from_docx('CV.docx')
-    skills = extract_skills(text)
-    print('Result: ', skills) 
+    file = input('Enter the filename with extention: ')
+
+    if file.endswith('.pdf'):
+        text = extract_text_from_pdf(file)
+        skills = extract_skills(text)
+        print('Result: ', skills)
+    elif file.endswith('.docx'):
+        text = extract_text_from_docx(file)
+        skills = extract_skills(text)
+        print('Result: ', skills)
+    else:
+        print('Only .pdf or .doc files can be uploaded')
 
 user_skill_string = str(skills)
 
